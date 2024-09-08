@@ -6,7 +6,7 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if ($_POST["password"] === "isles2002") {
+    if ($_POST["password"] === "admin") {
         $_SESSION["loggedin"] = true;
         header("location: index.php");
         exit;
