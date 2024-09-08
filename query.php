@@ -1,6 +1,9 @@
 <?php
 require('lock.php');
 
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+
 function packRconPacket($id, $type, $payload) {
     $packet = pack('VV', $id, $type) . $payload . "\x00\x00";
     return pack('V', strlen($packet)) . $packet;
@@ -15,7 +18,7 @@ function unpackRconPacket($data) {
     return ['id' => $id, 'type' => $type, 'payload' => $payload];
 }
 
-function query($command, $silent){
+function query($command){
     $config = include('config.php');
 
     $host = $config['host'];
@@ -47,7 +50,7 @@ function query($command, $silent){
 
     $output = $responsePacket['payload'];
     if(trim($output) == Null){
-	$output = "Null";
+	$output = "Command sent, no response";
     }
     fclose($socket);
 
@@ -56,15 +59,10 @@ function query($command, $silent){
 
 if(isset($_GET['rcon'])){
     $rcon = $_GET['rcon'];
+    $output = query($rcon);
 
-    if(isset($_GET['silent'])){
-        $output = query($rcon,1);
-        $_SESSION['silent_output'] = $output;
-    }else{
-        $output = query($rcon,0);
-        $_SESSION['rcon_input'] = $rcon;
-        $_SESSION['rcon_output'] = $output;
-    }
+    $contentToAppend = "Minecraft CMS> $rcon\nServer> $output\n";
+    if(file_put_contents('command.txt', $contentToAppend, FILE_APPEND)){}else{$_SESSION['rcon_output'] = 'error';}
 
     $referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/';
     header("Location: $referrer");
@@ -79,18 +77,37 @@ if (isset($_GET['cmd'])) {
     switch ($cmd) {
         case 'start':
             $output = shell_exec("sudo systemctl start $service 2>&1");
+	    $fileHandle = fopen('command.txt', 'w');
+	    fclose($fileHandle);
             break;
         case 'stop':
             $output = shell_exec("sudo systemctl stop $service 2>&1");
-            break;
-        case 'restart':
-            $output = shell_exec("sudo systemctl restart $service 2>&1");
+	    $fileHandle = fopen('command.txt', 'w');
+	    fclose($fileHandle);
             break;
         default:
             $output = "Invalid command";
     }
     $_SESSION['rcon_input'] = $cmd;
     $_SESSION['rcon_output'] = $output;
+    $referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/';
+    header("Location: $referrer");
+}
+
+if (isset($_GET['tunnel'])) {
+    $cmd = $_GET['tunnel'];
+    $service = 'tunnel';
+
+    switch ($cmd) {
+        case 'start':
+            $output = shell_exec("sudo systemctl start $service 2>&1");
+            break;
+        case 'stop':
+            $output = shell_exec("sudo systemctl stop $service 2>&1");
+            break;
+        default:
+            $output = "Invalid command";
+    }
     $referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/';
     header("Location: $referrer");
 }
