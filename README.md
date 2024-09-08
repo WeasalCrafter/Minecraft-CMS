@@ -1,6 +1,6 @@
 
 # Minecraft CMS
-A PHP-based lightweight minecraft server manager hosted locally on your pc.
+A PHP-based lightweight minecraft server manager hosted locally.
 This was designed to run on Ubuntu Server, but could definitely run on other linux distros.
 
 ## Installation
