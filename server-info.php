@@ -23,6 +23,8 @@ if(trim($isTunnel) == 'active'){
     $tunnelButton = $enableTunnel;
 }
 
+$tunnelButton = "";
+
 $text = "";
 $isActive = false;
 $isStarting = false;
