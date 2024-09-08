@@ -6,8 +6,6 @@ set -e
 sudo apt update && sudo apt upgrade -y
 sudo apt install git curl unzip zip openjdk-21-jdk apache2 php php-zip -y
 
-sudo rm /var/www/html/index.html
-
 # Firewall configuration
 read -p "Do you want to configure UFW firewall rules? (y/n): " configure_ufw
 if [[ $configure_ufw == "y" ]]; then
@@ -68,6 +66,11 @@ EOL'
 sudo systemctl daemon-reload
 # sudo systemctl start paper
 
+if [ -f /var/www/html/index.html ]; then
+    sudo rm /var/www/html/index.html
+    echo "Removed /var/www/html/index.html"
+fi
+
 # Allow www-data user to control the service without password
 sudo bash -c 'echo "www-data ALL=NOPASSWD: /bin/systemctl stop paper, /bin/systemctl start paper" >> /etc/sudoers'
 
@@ -83,9 +86,10 @@ sudo mkdir -p /var/www/backups/freetime /var/www/backups/competition
 sudo ./perms.sh
 
 # Prompt for panel password and update login.php
-read -p "Enter a password for the Minecraft CMS panel: " panel_password
-sudo sed -i "s/\$_POST\['password'\] = .*/\$_POST['password'] = '$panel_password';/" /var/www/html/login.php
+# read -p "Enter a password for the Minecraft CMS panel: " panel_password
+# sudo sed -i "s/\$_POST\['password'\] = .*/\$_POST['password'] = '$panel_password';/" /var/www/html/login.php
 
 # Instructions to access the server
 IP=$(hostname -I | awk '{print $1}')
 echo "Installation complete! Access the Minecraft CMS at http://$IP"
+echo "The password is 'admin'"
