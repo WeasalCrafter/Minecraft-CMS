@@ -3,7 +3,7 @@
 set -e
 
 # Update and install required packages
-sudo apt update && sudo apt upgrade -y
+sudo apt update 
 sudo apt install git curl unzip zip openjdk-21-jdk apache2 php php-zip -y
 
 # Firewall configuration
